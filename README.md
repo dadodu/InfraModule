@@ -30,10 +30,10 @@ Common libraries used
 Connection to the board
 -----------------------
 
--> UART_RX
--> UART_TX
--> GND
--> SWD_CLK
--> VCC
--> SWD_IO
--> RST
+- UART_RX
+- UART_TX
+- GND
+- SWD_CLK
+- VCC
+- SWD_IO
+- RST
