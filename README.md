@@ -1,8 +1,8 @@
-InfraModule
-===========
+#InfraModule#
+-----------
 
 Open Source project on stm32l151 - USB, Flash, RTC and OLED management.
-If you are interested : http://la-bluefrog.myinstapage.com/
+If you are interested : [click here!](http://la-bluefrog.myinstapage.com/)
 
 
 Common requirements
@@ -17,7 +17,7 @@ Common requirements
     arm-none-eabi-gdb (optional)
 
 - To run :
-    st-flash from https://github.com/texane/stlink
+    st-flash from [stlink](https://github.com/texane/stlink)
 
 Common libraries used
 ---------------------
@@ -30,18 +30,10 @@ Common libraries used
 Connection to the board
 -----------------------
 
---------+
-        |
-        |
-FLASH   |
-        |
-        |
-        |
-        |---- UART_RX
-        |---- UART_TX
-        |---- GND
-STM32   |---- SWD_CLK
-        |---- VCC
-        |---- SWD_IO
-        |---- RST
---------+
+____ UART_RX
+____ UART_TX
+____ GND
+____ SWD_CLK
+____ VCC
+____ SWD_IO
+____ RST
