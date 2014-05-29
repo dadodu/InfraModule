@@ -1,39 +1,46 @@
-#InfraModule#
------------
+##InfraModule by Cymeya
 
-Open Source project on stm32l151 - USB, Flash, RTC and OLED management.
+Embedded open source project on stm32l151 - USB, Flash, RTC and OLED management.
+
 If you are interested : [click here!](http://la-bluefrog.myinstapage.com/)
 
+##Common requirements
 
-Common requirements
--------------------
+* To compile :
 
-- To compile :
-    arm-none-eabi-gcc
-    arm-none-eabi-ld
-    arm-none-eabi-objcopy
-    arm-none-eabi-objdump
-    arm-none-eabi-size
-    arm-none-eabi-gdb (optional)
+ > arm-none-eabi-gcc
 
-- To run :
-    st-flash from [stlink](https://github.com/texane/stlink)
+ > arm-none-eabi-ld
+ 
+ > arm-none-eabi-objcopy
+  
+ > arm-none-eabi-objdump
 
-Common libraries used
----------------------
+ > arm-none-eabi-size
 
-- STM32L1xx_StdPeriph_Driver_v1.2.0
-- STM32_USB-FS-Device_Driver_v4.0.0
+ > arm-none-eabi-gdb (optional)
 
+* To run :
 
+ > st-flash from [stlink](https://github.com/texane/stlink)
 
-Connection to the board
------------------------
+##Common libraries used
 
-- UART_RX
-- UART_TX
-- GND
-- SWD_CLK
-- VCC
-- SWD_IO
-- RST
+* STM32L1xx_StdPeriph_Driver_v1.2.0
+* STM32_USB-FS-Device_Driver_v4.0.0
+
+##Connection to the board
+
+    # +-------------------------------------+
+    # | ON/OFF          USB           SLIDE |
+    # |              CONNECTOR              |
+    # |                                 F   |
+    # |           OLED CONNECTOR        L   |
+    # |                                 A   | < UART_RX
+    # |                                 S   | < UART_RX
+    # |                                 H   | < GND
+    # |                  STM32L151          | < SWD_CLK
+    # |   POWER                             | < VCc
+    # | MANAGEMENT                          | < SWD_IO
+    # |              LEDS                   | <  RST
+    # +-------------------------------------+
