@@ -9,21 +9,11 @@ If you are interested : [click here!](http://la-bluefrog.myinstapage.com/)
 
 * To compile :
 
-    arm-none-eabi-gcc
-    
-    arm-none-eabi-ld
-    
-    arm-none-eabi-objcopy
-    
-    arm-none-eabi-objdump
-    
-    arm-none-eabi-size
-
- > arm-none-eabi-gdb (optional)
+> arm-none-eabi suite (gcc/ld/objcopy/objdump/size)
 
 * To run :
 
-    st-flash from [stlink](https://github.com/texane/stlink)
+> st-flash from [stlink](https://github.com/texane/stlink)
 
 ###Common libraries used
 
@@ -31,7 +21,7 @@ If you are interested : [click here!](http://la-bluefrog.myinstapage.com/)
 
 * STM32_USB-FS-Device_Driver_v4.0.0
 
-###Connection to the board
+###The Board v1.5
 
     # +-------------------------------------+
     # | ON/OFF          USB           SLIDE |
