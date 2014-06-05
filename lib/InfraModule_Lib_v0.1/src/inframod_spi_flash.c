@@ -1,7 +1,7 @@
 /*******************************************************************************
  * inframod_spi_flash.c
  * 
- * Copyright 2013 Roman GAUCHI <roman.gauchi@gmail.com>
+ * Copyright 2013 Roman GAUCHI
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +20,20 @@
  *
  *******************************************************************************
  * 
- *        +-----------------------------------------------------------+
- *        |                     Pin assignment                        |
- *        +-----------------------------+---------------+-------------+
- *        |  STM32 SPI Pins             |     FLASH     |    Pin      |
- *        +-----------------------------+---------------+-------------+
- *        | FLASH_CS_PIN                | ChipSelect(/S)|    1        |
- *        | FLASH_SPI_MISO_PIN / MISO   | DataOut(DQ1)  |    2        |
- *        |                             | Write(/W)     |    3        |
- *        |                             | GND           |    4 (0 V)  |
- *        | FLASH_SPI_MOSI_PIN / MOSI   | DataIn(DQ0)   |    5        |
- *        | FLASH_SPI_SCK_PIN / SCK     | Clock(C)      |    6        |
- *        |                             | /HOLD         |    7        |
- *        |                             | VCC           |    8 (3.3 V)|
- *        +-----------------------------+---------------+-------------+
+ *         +------------------------------------------------------+
+ *         |                   Pin assignment                     |
+ *         +-----------------------+-----------------+------------+
+ *         |  STM32 SPI Pins       |      FLASH      |    Pins    |
+ *         +-----------------------+-----------------+------------+
+ *         | FLASH_CS_PIN          | ChipSelect (S#) |  1         |
+ *         | FLASH_SPI_MISO_PIN    | DataOut    (DQ1)|  2         |
+ *         |                       | Write      (W#) |  3         |
+ *         |                       | GND             |  4 (0 V)   |
+ *         | FLASH_SPI_MOSI_PIN    | DataIn     (DQ0)|  5         |
+ *         | FLASH_SPI_SCK_PIN     | Clock      (C)  |  6         |
+ *         |                       | Hold       (H#) |  7         |
+ *         |                       | VCC             |  8 (3.3 V) |
+ *         +-----------------------+-----------------+------------+
  * 
  ******************************************************************************/
 
@@ -49,46 +49,9 @@ void FLASH_WriteProtect_Init (void);
 /* Functions -----------------------------------------------------------------*/
 
 /*******************************************************************************
- * @brief  : Desinitialise les peripheriques utilise par le SPI.
- * @param  : Aucun.
- * @return : Rien.
- ******************************************************************************/
-void FLASH_DeInit(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-    
-    /* Desactive le FLASH_SPI  */
-    SPI_Cmd(FLASH_SPI, DISABLE);
-    
-    /* Desinitialise le FLASH_SPI */
-    SPI_I2S_DeInit(FLASH_SPI);
-    
-    /* Desactive l'horloge du peripherique FLASH_SPI */
-    RCC_APB1PeriphClockCmd(FLASH_SPI_CLK, DISABLE);
-    
-    /* Configure la pin SCK */
-    GPIO_InitStructure.GPIO_Pin  = FLASH_SPI_SCK_PIN;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(FLASH_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
-    
-    /* Configure la pin SPI_MISO */
-    GPIO_InitStructure.GPIO_Pin  = FLASH_SPI_MISO_PIN;
-    GPIO_Init(FLASH_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);
-    
-    /* Configure la pin SPI_MOSI */
-    GPIO_InitStructure.GPIO_Pin  = FLASH_SPI_MOSI_PIN;
-    GPIO_Init(FLASH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
-    
-    /* Configure la pin CS */
-    GPIO_InitStructure.GPIO_Pin  = FLASH_CS_PIN;
-    GPIO_Init(FLASH_CS_GPIO_PORT, &GPIO_InitStructure);
-}
-
-/*******************************************************************************
- * @brief  : Initialise les peripheriques utilise par le SPI.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Initializes the peripherals used by the SPI FLASH driver.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_Init(void)
 {
@@ -97,13 +60,12 @@ void FLASH_Init(void)
     FLASH_HoldProtect_Init();
     FLASH_WriteProtect_Init();
     
-    /* Initialisation des ports/pins */
     FLASH_LowLevel_Init();
     
-    /* Selectionne la memoire FLASH */
+    /* Deselect the FLASH: Chip Select high */
     FLASH_CS_HIGH();
     
-    /* Configuration du SPI */
+    /* SPI configuration */
     SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
     SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
     SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
@@ -116,30 +78,30 @@ void FLASH_Init(void)
     SPI_InitStructure.SPI_CRCPolynomial = 7;
     SPI_Init(FLASH_SPI, &SPI_InitStructure);
     
-    /* Active le FLASH_SPI */
+    /* Enable the FLASH_SPI */
     SPI_Cmd(FLASH_SPI, ENABLE);
 }
 
 /*******************************************************************************
- * @brief  : Initialise les pins utilisees par le SPI.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Initializes the pins used by the SPI FLASH driver.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_LowLevel_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    /* Active les horloges des pins du SPI */
+    /* Enable clocks */
     RCC_AHBPeriphClockCmd(  FLASH_SPI_SCK_GPIO_CLK |
                             FLASH_SPI_MISO_GPIO_CLK | 
                             FLASH_SPI_MOSI_GPIO_CLK | 
                             FLASH_CS_GPIO_CLK, 
                             ENABLE);
     
-    /* Active l'horloge du peripherique SPI */
+    /* Enable the SPI clock */
     RCC_APB1PeriphClockCmd(FLASH_SPI_CLK, ENABLE);
     
-    /* Configure la pin SCK */
+    /* SCK pin */
     GPIO_InitStructure.GPIO_Pin   = FLASH_SPI_SCK_PIN;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -147,20 +109,20 @@ void FLASH_LowLevel_Init(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
     GPIO_Init(FLASH_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
     
-    /* Configure la pin SPI_MISO */
+    /* SPI_MISO pin */
     GPIO_InitStructure.GPIO_Pin   = FLASH_SPI_MISO_PIN;
     GPIO_Init(FLASH_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);
     
-    /* Configure la pin SPI_MOSI */
+    /* SPI_MOSI pin */
     GPIO_InitStructure.GPIO_Pin = FLASH_SPI_MOSI_PIN;
     GPIO_Init(FLASH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
     
-    /* Connecte les pins SPI a leur fonctions alternatives */
+    /* Alternative functions */
     GPIO_PinAFConfig(FLASH_SPI_SCK_GPIO_PORT, FLASH_SPI_SCK_SOURCE, FLASH_SPI_SCK_AF);
     GPIO_PinAFConfig(FLASH_SPI_MISO_GPIO_PORT, FLASH_SPI_MISO_SOURCE, FLASH_SPI_MISO_AF);
     GPIO_PinAFConfig(FLASH_SPI_MOSI_GPIO_PORT, FLASH_SPI_MOSI_SOURCE, FLASH_SPI_MOSI_AF);
     
-    /* Configure la pin CS */
+    /* CS pin */
     GPIO_InitStructure.GPIO_Pin   = FLASH_CS_PIN;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -169,18 +131,18 @@ void FLASH_LowLevel_Init(void)
 }
 
 /*******************************************************************************
- * @brief  : Initialise la pin HOLD.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Initializes the HOLD pin.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_HoldProtect_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    /* Active l'horloge de la pin HOLD */
+    /* Enable the clock */
     RCC_AHBPeriphClockCmd(FLASH_HOLD_GPIO_CLK, ENABLE);
     
-    /* Configure la pin HOLD */
+    /* HOLD pin */
     GPIO_InitStructure.GPIO_Pin   = FLASH_HOLD_PIN;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -188,23 +150,23 @@ void FLASH_HoldProtect_Init(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
     GPIO_Init(FLASH_HOLD_GPIO_PORT, &GPIO_InitStructure);
     
-    /* Initialise la pin a l'etat haut */
+    /* Initializes the pin to high state */
     FLASH_HOLD_HIGH();
 }
 
 /*******************************************************************************
- * @brief  : Initialise la pin WR/Vpp.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Initializes the WR/Vpp pin.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_WriteProtect_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    /* Active l'horloge de la pin WR */
+    /* Enable the clock */
     RCC_AHBPeriphClockCmd(FLASH_WR_GPIO_CLK, ENABLE);
     
-    /* Configure la pin WR */
+    /* WR pin */
     GPIO_InitStructure.GPIO_Pin   = FLASH_WR_PIN;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -212,44 +174,14 @@ void FLASH_WriteProtect_Init(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
     GPIO_Init(FLASH_HOLD_GPIO_PORT, &GPIO_InitStructure);
     
-    /* Initialise la pin a l'etat haut */
+    /* Initializes the pin to high state */
     FLASH_WR_HIGH();
 }
 
 /*******************************************************************************
- * @brief  : Efface un sous-secteur (4096 octets = 0x1000) de la memoire FLASH.
- * @note   : quelquesoit l'adresse effacement par secteurs :
- *               [0x0000-0x0FFF], [0x1000-0x1FFF], [0x2000-0x2FFF] ...
- * @param  : Adresse du sous-secteur (inclue dans les intervalles).
- * @return : Rien.
- ******************************************************************************/
-void FLASH_EraseSubsector(uint32_t SubsectorAddr)
-{
-    /* Send write enable instruction */
-    FLASH_WriteEnable();
-    
-    /* Subsector Erase */
-    /* Select the FLASH: Chip Select low */
-    FLASH_CS_LOW();
-    /* Send Subsector Erase instruction */
-    FLASH_SendByte(FLASH_CMD_SSE);
-    /* Send SubsectorAddr high nibble address byte */
-    FLASH_SendByte((SubsectorAddr & 0xFF0000) >> 16);
-    /* Send SubsectorAddr medium nibble address byte */
-    FLASH_SendByte((SubsectorAddr & 0xFF00) >> 8);
-    /* Send SubsectorAddr low nibble address byte */
-    FLASH_SendByte(SubsectorAddr & 0xFF);
-    /* Deselect the FLASH: Chip Select high */
-    FLASH_CS_HIGH();
-    
-    /* Wait the end of Flash writing */
-    FLASH_WaitForWriteEnd();
-}
-
-/*******************************************************************************
- * @brief  : Efface un secteur (65536 octets = 0x10000) de la memoire FLASH.
- * @param  : Adresse du secteur.
- * @return : Rien.
+ * @brief  : Erases the specified Flash sector.
+ * @param  : SectorAddr: address of the sector to erase.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_EraseSector(uint32_t SectorAddr)
 {
@@ -275,9 +207,9 @@ void FLASH_EraseSector(uint32_t SectorAddr)
 }
 
 /*******************************************************************************
- * @brief  : Efface completement la memoire FLASH.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Erases the entire Flash.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_EraseBulk(void)
 {
@@ -297,14 +229,15 @@ void FLASH_EraseBulk(void)
 }
 
 /*******************************************************************************
- * @brief  : Ecrit une page en memoire (256 octets) en une seul fois.
- * @note   : le nombre d'octet ecrit ne peut pas depasser une page de FLASH.
- * @param  : pBuffer: pointeur sur le buffer contenant les donnees a ecrire en 
- *           memoire FLASH.
- * @param  : WriteAddr: addresse ou ecrire les donnees.
- * @param  : NumByteToWrite: nombre d'octet a ecrire en memoire FLASH, doit 
- *           etre egal ou inferieur a la taille d'une page de FLASH.
- * @return : Rien.
+ * @brief  : Writes more than one byte to the FLASH with a single WRITE cycle 
+ *           (Page WRITE sequence).
+ * @note   : The number of byte can't exceed the FLASH page size.
+ * @param  : pBuffer: pointer to the buffer  containing the data to be written
+ *           to the FLASH.
+ *           WriteAddr: FLASH's internal address to write to.
+ *           NumByteToWrite: number of bytes to write to the FLASH, must be 
+ *           equal or less than "FLASH_PAGESIZE" value.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
@@ -339,129 +272,92 @@ void FLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWri
 }
 
 /*******************************************************************************
- * @brief  : Ecrit une page en memoire (4096 octets) en une seul fois.
- * @param  : pBuffer: pointeur sur le buffer contenant les donnees a ecrire en 
- *           memoire FLASH.
- * @param  : WriteAddr: addresse ou ecrire les donnees.
- * @param  : NumByteToWrite: nombre d'octet a ecrire en memoire FLASH.
- * @return : Rien.
- ******************************************************************************/
-void FLASH_WriteSubsector(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
-{
-    uint32_t AddrSubsector;
-    uint16_t i=0;
-    uint8_t  Buffer[FLASH_SUBSECTOR_SIZE];
-    
-    AddrSubsector = (WriteAddr / FLASH_SUBSECTOR_SIZE) * FLASH_SUBSECTOR_SIZE;
-    
-    /* Lit toutes les donnees du sous-secteur */
-    FLASH_ReadBuffer(Buffer, AddrSubsector, FLASH_SUBSECTOR_SIZE);
-    
-    /* Copie les donnees qui changent dans le nouveau buffer */
-    while(NumByteToWrite--)
-    {
-        Buffer[i+(WriteAddr-AddrSubsector)] = *pBuffer;
-        pBuffer++;
-        i++;
-    }
-    
-    /* Efface le sous-secteur */
-    FLASH_EraseSubsector(AddrSubsector);
-    
-    /* Ecrit les nouvelles donnees dans le sous-secteur */
-    for(i=0; i<0x10; i++)
-    {
-        FLASH_WritePage(Buffer+(i*0x100), AddrSubsector+(i*0x100), 0x100);
-    }
-}
-
-/*******************************************************************************
- * @brief  : Ecrit un block de donnees en memoire. Dans cette fonction, le 
- *           nombre de cycle d'ecriture est reduit en utilisant FLASH_WritePage.
- * @param  : pBuffer: pointeur sur le buffer contenant les donnees a ecrire en 
- *           memoire FLASH.
- * @param  : WriteAddr: addresse ou ecrire les donnees.
- * @param  : NumByteToWrite: nombre d'octet a ecrire en memoire FLASH.
- * @return : Rien.
+ * @brief  : Writes block of data to the Flash. In this function, the number of
+ *           WRITE cycles are reduced, using Page WRITE sequence.
+ * @param  : pBuffer: pointer to the buffer  containing the data to be written
+ *           to the Flash.
+ *           WriteAddr: Flash's internal address to write to.
+ *           NumByteToWrite: number of bytes to write to the Flash.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
-    uint8_t NumOfSubsector = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
+    uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
     
-    Addr = WriteAddr % FLASH_SUBSECTOR_SIZE;
-    count = FLASH_SUBSECTOR_SIZE - Addr;
-    NumOfSubsector =  NumByteToWrite / FLASH_SUBSECTOR_SIZE;
-    NumOfSingle = NumByteToWrite % FLASH_SUBSECTOR_SIZE;
+    Addr = WriteAddr % FLASH_SPI_PAGESIZE;
+    count = FLASH_SPI_PAGESIZE - Addr;
+    NumOfPage =  NumByteToWrite / FLASH_SPI_PAGESIZE;
+    NumOfSingle = NumByteToWrite % FLASH_SPI_PAGESIZE;
     
-    if (Addr == 0) // WriteAddr is FLASH_SUBSECTOR_SIZE aligned
+    if (Addr == 0) /* WriteAddr is FLASH_PAGESIZE aligned  */
     {
-        if (NumOfSubsector == 0) // NumByteToWrite < FLASH_SUBSECTOR_SIZE
+        if (NumOfPage == 0) /* NumByteToWrite < FLASH_PAGESIZE */
         {
-            FLASH_WriteSubsector(pBuffer, WriteAddr, NumByteToWrite);
+            FLASH_WritePage(pBuffer, WriteAddr, NumByteToWrite);
         }
-        else // NumByteToWrite > FLASH_SUBSECTOR_SIZE
+        else /* NumByteToWrite > FLASH_PAGESIZE */
         {
-            while (NumOfSubsector--)
+            while (NumOfPage--)
             {
-                FLASH_WriteSubsector(pBuffer, WriteAddr, FLASH_SUBSECTOR_SIZE);
-                WriteAddr +=  FLASH_SUBSECTOR_SIZE;
-                pBuffer += FLASH_SUBSECTOR_SIZE;
+                FLASH_WritePage(pBuffer, WriteAddr, FLASH_SPI_PAGESIZE);
+                WriteAddr +=  FLASH_SPI_PAGESIZE;
+                pBuffer += FLASH_SPI_PAGESIZE;
             }
             
-            FLASH_WriteSubsector(pBuffer, WriteAddr, NumOfSingle);
+            FLASH_WritePage(pBuffer, WriteAddr, NumOfSingle);
         }
     }
-    else // WriteAddr is not FLASH_SUBSECTOR_SIZE aligned
+    else /* WriteAddr is not FLASH_PAGESIZE aligned */
     {
-        if (NumOfSubsector == 0) // NumByteToWrite < FLASH_SUBSECTOR_SIZE
+        if (NumOfPage == 0) /* NumByteToWrite < FLASH_PAGESIZE */
         {
-            if (NumOfSingle > count) // (NumByteToWrite + WriteAddr) > FLASH_SUBSECTOR_SIZE
+            if (NumOfSingle > count) /* (NumByteToWrite + WriteAddr) > FLASH_PAGESIZE */
             {
                 temp = NumOfSingle - count;
                 
-                FLASH_WriteSubsector(pBuffer, WriteAddr, count);
-                WriteAddr += count;
+                FLASH_WritePage(pBuffer, WriteAddr, count);
+                WriteAddr +=  count;
                 pBuffer += count;
                 
-                FLASH_WriteSubsector(pBuffer, WriteAddr, temp);
+                FLASH_WritePage(pBuffer, WriteAddr, temp);
             }
             else
             {
-                FLASH_WriteSubsector(pBuffer, WriteAddr, NumByteToWrite);
+                FLASH_WritePage(pBuffer, WriteAddr, NumByteToWrite);
             }
         }
-        else // NumByteToWrite > FLASH_SUBSECTOR_SIZE
+        else /* NumByteToWrite > FLASH_PAGESIZE */
         {
             NumByteToWrite -= count;
-            NumOfSubsector =  NumByteToWrite / FLASH_SUBSECTOR_SIZE;
-            NumOfSingle = NumByteToWrite % FLASH_SUBSECTOR_SIZE;
+            NumOfPage =  NumByteToWrite / FLASH_SPI_PAGESIZE;
+            NumOfSingle = NumByteToWrite % FLASH_SPI_PAGESIZE;
             
-            FLASH_WriteSubsector(pBuffer, WriteAddr, count);
+            FLASH_WritePage(pBuffer, WriteAddr, count);
             WriteAddr +=  count;
             pBuffer += count;
             
-            while (NumOfSubsector--)
+            while (NumOfPage--)
             {
-                FLASH_WriteSubsector(pBuffer, WriteAddr, FLASH_SUBSECTOR_SIZE);
-                WriteAddr +=  FLASH_SUBSECTOR_SIZE;
-                pBuffer += FLASH_SUBSECTOR_SIZE;
+                FLASH_WritePage(pBuffer, WriteAddr, FLASH_SPI_PAGESIZE);
+                WriteAddr +=  FLASH_SPI_PAGESIZE;
+                pBuffer += FLASH_SPI_PAGESIZE;
             }
             
             if (NumOfSingle != 0)
             {
-                FLASH_WriteSubsector(pBuffer, WriteAddr, NumOfSingle);
+                FLASH_WritePage(pBuffer, WriteAddr, NumOfSingle);
             }
         }
     }
 }
 
 /*******************************************************************************
- * @brief  : Lit un block de donnees en memoire FLASH.
- * @param  : pBuffer: pointeur sur le buffer qui recoit les donnees a lire en 
- *           memoire FLASH.
- * @param  : ReadAddr: addresse ou les donnees sont lues.
- * @param  : NumByteToRead: nombre d'octet a lire de la memoire FLASH.
- * @return : Rien.
+ * @brief  : Reads a block of data from the Flash.
+ * @param  : pBuffer: pointer to the buffer that receives the data read from 
+ *           the Flash.
+ *           ReadAddr: Flash's internal address to read from.
+ *           NumByteToRead: number of bytes to read from the Flash.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
 {
@@ -491,9 +387,9 @@ void FLASH_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRea
 }
 
 /*******************************************************************************
- * @brief  : Lit l'identifiant de la memoire FLASH.
- * @param  : Aucun.
- * @return : Identification (ID) de la memoire FLASH.
+ * @brief  : Reads Flash identification.
+ * @param  : None.
+ * @retval : Flash identification.
  ******************************************************************************/
 uint32_t FLASH_ReadID(void)
 {
@@ -518,9 +414,14 @@ uint32_t FLASH_ReadID(void)
 }
 
 /*******************************************************************************
- * @brief  : Initialise une sequence de lecture de donnees sur la Flash.
- * @param  : ReadAddr: adresse de lecture de depart dans la Flash.
- * @return : Rien.
+ * @brief  : Initiates a read data byte (READ) sequence from the Flash.
+ *           This is done by driving the /CS line low to select the device, 
+ *           then the READ instruction is transmitted followed by 3 bytes 
+ *           address. This function exit and keep the /CS line low, so the 
+ *           Flash still being selected. With this technique the whole content 
+ *           of the Flash is read with a single READ instruction.
+ * @param  : ReadAddr: FLASH's internal address to read from.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_StartReadSequence(uint32_t ReadAddr)
 {
@@ -540,11 +441,11 @@ void FLASH_StartReadSequence(uint32_t ReadAddr)
 }
 
 /*******************************************************************************
- * @brief  : Lit un octet dans la Flash avec le SPI.
- * @note   : Cette fonction peut etre appelee seulement si la fonction 
- *           StartReadSequence a ete appelee.
- * @param  : Aucun.
- * @return : Octet lu par le SPI.
+ * @brief  : Reads a byte from the SPI Flash.
+ * @note   : This function must be used only if the Start_Read_Sequence function
+ *           has been previously called.
+ * @param  : None.
+ * @retval : Byte read from the SPI Flash.
  ******************************************************************************/
 uint8_t FLASH_ReadByte(void)
 {
@@ -552,9 +453,10 @@ uint8_t FLASH_ReadByte(void)
 }
 
 /*******************************************************************************
- * @brief  : Envoi un octet vers la Flash avec le SPI et retourne un octet lu.
- * @param  : byte: octet a envoyer.
- * @return : La valeur de l'octet recu.
+ * @brief  : Sends a byte through the SPI interface and return the byte received
+ *           from the SPI bus.
+ * @param  : byte: byte to send.
+ * @retval : The value of the received byte.
  ******************************************************************************/
 uint8_t FLASH_SendByte(uint8_t byte)
 {
@@ -572,9 +474,10 @@ uint8_t FLASH_SendByte(uint8_t byte)
 }
 
 /*******************************************************************************
- * @brief  : Envoi deux octets par le bus SPI et en retourne deux autres lus.
- * @param  : HalfWord: octets a envoyer.
- * @return : Valeur des octets recu.
+ * @brief  : Sends a Half Word through the SPI interface and return the Half 
+ *           Word received from the SPI bus.
+ * @param  : HalfWord: Half Word to send.
+ * @retval : The value of the received Half Word.
  ******************************************************************************/
 uint16_t FLASH_SendHalfWord(uint16_t HalfWord)
 {
@@ -592,9 +495,9 @@ uint16_t FLASH_SendHalfWord(uint16_t HalfWord)
 }
 
 /*******************************************************************************
- * @brief  : Active l'acces en lecture de la Flash.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Enables the write access to the Flash.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_WriteEnable(void)
 {
@@ -607,9 +510,10 @@ void FLASH_WriteEnable(void)
 }
 
 /*******************************************************************************
- * @brief  : Attend que le processus d'ecriture dans la Flash se termine.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Polls the status of the Write In Progress (WIP) flag in the Flash's
+ *           status register and loop until write operation has completed.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void FLASH_WaitForWriteEnd(void)
 {
@@ -635,11 +539,11 @@ void FLASH_WaitForWriteEnd(void)
 }
 
 /*******************************************************************************
- * @brief  : Parametre le registre des status de la memoire FLASH.
- * @param  : Valeur a donner au registre des status.
- * @return : Rien.
+ * @brief  : Write new value in Flash status register.
+ * @param  : regval : new value of register.
+ * @retval : None.
  ******************************************************************************/
-void FLASH_WriteStatusRegister (uint8_t valeur)
+void FLASH_WriteStatusRegister (uint8_t regval)
 {
     FLASH_WriteEnable();
     
@@ -648,15 +552,15 @@ void FLASH_WriteStatusRegister (uint8_t valeur)
     /* Send "WRSR " instruction */
     FLASH_SendByte(FLASH_CMD_WRSR);
     /* Read a byte from the FLASH */
-    FLASH_SendByte(valeur);
+    FLASH_SendByte(regval);
     /* Deselect the FLASH: Chip Select high */
     FLASH_CS_HIGH();
 }
 
 /*******************************************************************************
- * @brief  : Lit le registre des status de la memoire FLASH.
- * @param  : Aucun.
- * @return : Regiqtre des status.
+ * @brief  : Read Flash status register.
+ * @param  : None.
+ * @retval : The value of the status register.
  ******************************************************************************/
 uint8_t FLASH_ReadStatusRegister (void)
 {

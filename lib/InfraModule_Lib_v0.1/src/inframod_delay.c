@@ -1,7 +1,7 @@
 /*******************************************************************************
  * inframod_delay.c
  * 
- * Copyright 2014 Roman GAUCHI <roman.gauchi@gmail.com>
+ * Copyright 2014 Roman GAUCHI
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@
 /* Functions -----------------------------------------------------------------*/
 
 /*******************************************************************************
- * @brief  : Temporisation en micro-secondes.
- * @param  : delay: duree de la tempo.
- * @return : Rien.
+ * @brief  : Delay in microseconds.
+ * @param  : delay: delay time.
+ * @return : None.
  ******************************************************************************/
 void delay_us(uint32_t delay)
 {
@@ -48,9 +48,9 @@ void delay_us(uint32_t delay)
 }
 
 /*******************************************************************************
- * @brief  : Temporisation en milli-secondes.
- * @param  : delay: duree de la tempo.
- * @return : Rien.
+ * @brief  : Delay in milliseconds.
+ * @param  : delay: delay time.
+ * @return : None.
  ******************************************************************************/
 void delay_ms(uint32_t delay)
 {

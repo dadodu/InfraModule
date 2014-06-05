@@ -42,7 +42,6 @@
 
 #define Timed(x) timeout=0xFFFF; error++; while (x) { if (timeout-- == 0) return error;}
 
-
 #define PWR_I2C_SPEED               400000      // 400kHz
 
 #define PWR_ADDR_ID                 0x60

@@ -69,7 +69,6 @@
 #define FLASH_DUMMY_BYTE            0xA5
 
 #define FLASH_SPI_PAGESIZE          0x100   /* 512 bytes */
-#define FLASH_SUBSECTOR_SIZE        0x1000  /* 4096 bytes */
 
 #define FLASH_N25Q032_ID            0x20BA16
 
@@ -92,13 +91,10 @@
 /* Exported functions --------------------------------------------------------*/
 
 /* High layer functions */
-void FLASH_DeInit(void);
 void FLASH_Init(void);
-void FLASH_EraseSubsector(uint32_t SubsectorAddr);
 void FLASH_EraseSector(uint32_t SectorAddr);
 void FLASH_EraseBulk(void);
 void FLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
-void FLASH_WriteSubsector(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
 void FLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
 void FLASH_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 uint32_t FLASH_ReadID(void);

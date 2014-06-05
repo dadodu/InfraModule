@@ -85,21 +85,21 @@ void CLOCK_EXTI_Init(void)
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 
-    // Enable the RTC Wakeup Interrupt
+    /* Enable the RTC Wakeup Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = RTC_WKUP_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 4;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    // Configure the RTC WakeUp Clock source: CK_SPRE (1Hz)
+    /* Configure the RTC WakeUp Clock source: CK_SPRE (1Hz) */
     RTC_WakeUpClockConfig(RTC_WakeUpClock_CK_SPRE_16bits);
     RTC_SetWakeUpCounter(0x0);
 
-    // Enable the RTC Wakeup Interrupt
+    /* Enable the RTC Wakeup Interrupt */
     RTC_ITConfig(RTC_IT_WUT, ENABLE);
 
-    // Enable Wakeup Counter
+    /* Enable Wakeup Counter */
     RTC_WakeUpCmd(ENABLE);
 }
 
@@ -117,7 +117,7 @@ void CLOCK_Config(uint16_t time)
     if(time > 2359) {time = 1200;}
     if(time < 0) {time = 1200;}
     
-    // time => 12h 00mn 00s AM by default
+    /* time => 12h 00mn 00s AM by default */
     if(time < 1200)
         RTC_TimeStruct.RTC_H12     = RTC_H12_AM;
     else

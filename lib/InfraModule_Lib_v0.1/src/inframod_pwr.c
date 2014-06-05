@@ -46,22 +46,22 @@ void PWR_Init(void)
                             PWR_POWERACK_GPIO_CLK, 
                             ENABLE);
     
-    // ONSTAT pin (IN)
+    /* ONSTAT pin (IN) */
     GPIO_InitStruct.GPIO_Pin   = PWR_ONSTAT_PIN;
     GPIO_InitStruct.GPIO_Mode  = GPIO_Mode_IN;
     GPIO_InitStruct.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_40MHz;
     GPIO_Init(PWR_ONSTAT_GPIO_PORT, &GPIO_InitStruct);
     
-    // Pin NRST (IN)
+    /* NRST pin (IN) */
     GPIO_InitStruct.GPIO_Pin   = PWR_NRST_PIN;
     GPIO_Init(PWR_NRST_GPIO_PORT, &GPIO_InitStruct);
     
-    // Pin IRQB (IN)
+    /* IRQB pin (IN) */
     GPIO_InitStruct.GPIO_Pin   = PWR_IRQB_PIN;
     GPIO_Init(PWR_IRQB_GPIO_PORT, &GPIO_InitStruct);
     
-    // Pin POWERACK (OUT)
+    /* POWERACK pin (OUT) */
     GPIO_InitStruct.GPIO_Pin   = PWR_POWERACK_PIN;
     GPIO_InitStruct.GPIO_Mode  = GPIO_Mode_OUT;
     GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -69,38 +69,38 @@ void PWR_Init(void)
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_Init(PWR_POWERACK_GPIO_PORT, &GPIO_InitStruct);
     
-    // Tant que la pin NRST est a l'etat haut.
+    /* While NRST pin is in high state */
     while(!GPIO_ReadInputDataBit(PWR_NRST_GPIO_PORT, PWR_NRST_PIN))
     
-    // Mise a l'etat de POWERACK, passage en mode Actif du PM
+    /* Startup Power Management */
     GPIO_HIGH(PWR_POWERACK_GPIO_PORT, PWR_POWERACK_PIN);
     
-    // Initialisation du bus I2C
+    /* Initialization of the I2C bus */
     PWR_I2C_Init();
     
-    // Configuration de la tension VCC_NUM
+    /* Voltage configuration of VCC_NUM */
     PWR_WriteReg(PWR_BUCK2_ADDR, PWR_BUCK2_VDD);
     
-    // Configuration du courant linmit (100mA)
-    PWR_WriteReg(0x20, 0x01);      // 100 mA
+    /* Limit current configuration (100mA) */
+    PWR_WriteReg(0x20, 0x01);
 }
 
 /*******************************************************************************
- * @brief  : Initialise et configure le peripherique I2C.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Initialize the I2C peripheral.
+ * @param  : None.
+ * @return : None.
  ******************************************************************************/
 void PWR_I2C_Init (void)
 {
     I2C_InitTypeDef I2C_InitStruct;
     
-    // Initialise le port de l'I2C
+    /* Initialize I2C port */
     PWR_I2C_LowLevel_Init();
     
-    // Nettoie I2C
+    /* Deinitilize I2C */
     I2C_DeInit(PWR_I2C);
     
-    // Configure l'I2C
+    /* Configure the I2C */
     I2C_InitStruct.I2C_Mode                = I2C_Mode_I2C;
     I2C_InitStruct.I2C_DutyCycle           = I2C_DutyCycle_2;
     I2C_InitStruct.I2C_OwnAddress1         = 0x00;
@@ -108,17 +108,16 @@ void PWR_I2C_Init (void)
     I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
     I2C_InitStruct.I2C_ClockSpeed          = PWR_I2C_SPEED;
     
-    // Initialise l'I2C
     I2C_Init(PWR_I2C, &I2C_InitStruct);
     
-    // Active l'I2C
+    /* Enable the I2C */
     I2C_Cmd(PWR_I2C, ENABLE);
 }
 
 /*******************************************************************************
- * @brief  : Initialise et configure le port materiel de l'I2C.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Low level Initialization I2C peripheral.
+ * @param  : None.
+ * @return : None.
  ******************************************************************************/
 void PWR_I2C_LowLevel_Init (void)
 {

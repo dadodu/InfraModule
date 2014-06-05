@@ -1,7 +1,7 @@
 /*******************************************************************************
  * inframod_oled.c
  * 
- * Copyright 2014 Roman GAUCHI <roman.gauchi@gmail.com>
+ * Copyright 2014 Roman GAUCHI
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,82 +28,78 @@
 /* Functions -----------------------------------------------------------------*/
 
 /*******************************************************************************
- * @brief  : Configure l'OLED.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Configure the OLED.
+ * @note   : Setup procedure according to the datasheet DD-160128FC-1A.
+ * @param  : Configuration table.
+ * @return : None.
  ******************************************************************************/
 void OLED_Config(uint16_t *fconf)
 {
-    /* 
-     * note : Procedure de configuration selon
-     * la datasheet du densitron DD-160128FC-1A
-     */
-    
     OLED_RESET_LOW();
     delay_ms(10);
     OLED_RESET_HIGH();
     delay_ms(10);
     
-    // display off, analog reset
-    OLED_EcrireReg(0x04, 0x01);
+    /* display off, analog reset */
+    OLED_WriteReg(0x04, 0x01);
     delay_ms(10);
-    // Power save mode : normal
-    OLED_EcrireReg(0x04, 0x00);
+    /* Power save mode : normal */
+    OLED_WriteReg(0x04, 0x00);
     delay_ms(10);
     
-    // Display off
-    OLED_EcrireReg(0x06, 0x00);
+    /* Display off */
+    OLED_WriteReg(0x06, 0x00);
     
-    // Export1 internal clock and OSC operates with external resistor
-    OLED_EcrireReg(0x02, 0x01);
+    /* Export1 internal clock and OSC operates with external resistor */
+    OLED_WriteReg(0x02, 0x01);
     
-    // Iref controlled by external resistor
-    OLED_EcrireReg(0x80, 0x00);
+    /* Iref controlled by external resistor */
+    OLED_WriteReg(0x80, 0x00);
     
     if(fconf[0] == 0xFFFF)
     {
-        /* VALEURS PAR DEFAUTS ************************************************/
+        /* DEFAULTS ----------------------------------------------------------*/
         
-        // Clock div ratio 1: freq setting 90Hz
-        OLED_EcrireReg(0x03, 0x30);
+        /* Clock div ratio 1: freq setting 90Hz */
+        OLED_WriteReg(0x03, 0x30);
         
-        // Driving current R G B - default R = 82uA / G = 56uA / B = 58uA
-        OLED_EcrireReg(0x10, 0x52);     // 0x52
-        OLED_EcrireReg(0x11, 0x38);     // 0x38
-        OLED_EcrireReg(0x12, 0x3A);     // 0x3A
+        /* Driving current R G B - default R = 82uA / G = 56uA / B = 58uA */
+        OLED_WriteReg(0x10, 0x52);     // 0x52
+        OLED_WriteReg(0x11, 0x38);     // 0x38
+        OLED_WriteReg(0x12, 0x3A);     // 0x3A
         
-        // Precharge time R G B
-        OLED_EcrireReg(0x08, 0x01);     // 0x04 / 0x01
-        OLED_EcrireReg(0x09, 0x01);     // 0x05 / 0x01
-        OLED_EcrireReg(0x0A, 0x01);     // 0x05 / 0x01
+        /* Precharge time R G B */
+        OLED_WriteReg(0x08, 0x01);     // 0x04 / 0x01
+        OLED_WriteReg(0x09, 0x01);     // 0x05 / 0x01
+        OLED_WriteReg(0x0A, 0x01);     // 0x05 / 0x01
         
-        // Precharge current R G B
-        OLED_EcrireReg(0x0B, 0x0A);     // 0x9D / 0x0A
-        OLED_EcrireReg(0x0C, 0x0A);     // 0x8C / 0x0A
-        OLED_EcrireReg(0x0D, 0x0A);     // 0x57 / 0x0A
+        /* Precharge current R G B */
+        OLED_WriteReg(0x0B, 0x0A);     // 0x9D / 0x0A
+        OLED_WriteReg(0x0C, 0x0A);     // 0x8C / 0x0A
+        OLED_WriteReg(0x0D, 0x0A);     // 0x57 / 0x0A
     }
     else
     {
         uint8_t freq;
         freq = (uint8_t)(fconf[1]/5) - 15;
         
-        // Frame Frequency
-        OLED_EcrireReg(0x03, (freq << 8));
+        /* Frame Frequency */
+        OLED_WriteReg(0x03, (freq << 8));
         
-        // Driving current R G B
-        OLED_EcrireReg(0x10, (uint8_t)fconf[2]);
-        OLED_EcrireReg(0x11, (uint8_t)fconf[3]);
-        OLED_EcrireReg(0x12, (uint8_t)fconf[4]);
+        /* Driving current R G B */
+        OLED_WriteReg(0x10, (uint8_t)fconf[2]);
+        OLED_WriteReg(0x11, (uint8_t)fconf[3]);
+        OLED_WriteReg(0x12, (uint8_t)fconf[4]);
         
-        // Precharge time R G B
-        OLED_EcrireReg(0x08, (uint8_t)fconf[5]);
-        OLED_EcrireReg(0x09, (uint8_t)fconf[6]);
-        OLED_EcrireReg(0x0A, (uint8_t)fconf[7]);
+        /* Precharge time R G B */
+        OLED_WriteReg(0x08, (uint8_t)fconf[5]);
+        OLED_WriteReg(0x09, (uint8_t)fconf[6]);
+        OLED_WriteReg(0x0A, (uint8_t)fconf[7]);
         
-        // Precharge current R G B
-        OLED_EcrireReg(0x0B, (uint8_t)fconf[8]);
-        OLED_EcrireReg(0x0C, (uint8_t)fconf[9]);
-        OLED_EcrireReg(0x0D, (uint8_t)fconf[10]);
+        /* Precharge current R G B */
+        OLED_WriteReg(0x0B, (uint8_t)fconf[8]);
+        OLED_WriteReg(0x0C, (uint8_t)fconf[9]);
+        OLED_WriteReg(0x0D, (uint8_t)fconf[10]);
     }
     
     /* Display mode set :
@@ -111,10 +107,10 @@ void OLED_Config(uint16_t *fconf)
      *  - Column = 0->159
      *  - Column data display = Normal display
      */
-    OLED_EcrireReg(0x13, 0x00);
+    OLED_WriteReg(0x13, 0x00);
     
-    // External interface mode=MPU
-    OLED_EcrireReg(0x14, 0x31);     // 0x01 ?
+    /* External interface mode=MPU */
+    OLED_WriteReg(0x14, 0x31);     // 0x01 ?
     
     /* Memory write mode :
      *  - 8 bits dual transfer
@@ -123,32 +119,32 @@ void OLED_Config(uint16_t *fconf)
      *  - Vertical address counter is increased
      *  - The data is continuously written horizontally
      */
-    OLED_EcrireReg(0x16, 0x66);
+    OLED_WriteReg(0x16, 0x66);
     
-    // Duty = 128
-    OLED_EcrireReg(0x28, 0x7F);
+    /* Duty = 128 */
+    OLED_WriteReg(0x28, 0x7F);
     
-    // Display start on line 0
-    OLED_EcrireReg(0x29, 0x00);
+    /* Display start on line 0 */
+    OLED_WriteReg(0x29, 0x00);
     
-    //DDRAM read address start point 0x2E~0x2F
-    OLED_EcrireReg(0x2E, 0x00);     // X
-    OLED_EcrireReg(0x2F, 0x00);     // Y
+    /* DDRAM read address start point 0x2E~0x2F */
+    OLED_WriteReg(0x2E, 0x00);     // X
+    OLED_WriteReg(0x2F, 0x00);     // Y
     
-    // Display screen saver size 0x33~0x36
-    OLED_EcrireReg(0x33, 0x00);     // Screen saver columns start
-    OLED_EcrireReg(0x34, 0x9F);     // Screen saver columns end
-    OLED_EcrireReg(0x35, 0x00);     // Screen saver row start
-    OLED_EcrireReg(0x36, 0x7F);     // Screen saver row end
+    /* Display screen saver size 0x33~0x36 */
+    OLED_WriteReg(0x33, 0x00);     // Screen saver columns start
+    OLED_WriteReg(0x34, 0x9F);     // Screen saver columns end
+    OLED_WriteReg(0x35, 0x00);     // Screen saver row start
+    OLED_WriteReg(0x36, 0x7F);     // Screen saver row end
     
-    // CLEAR SCREEN !!
+    /* CLEAR SCREEN */
     OLED_Clear();
     
     OLED_VDDH_ON();
     delay_ms(100);
     
-    // Display ON
-    OLED_EcrireReg(0x06, 0x01);
+    /* Display ON */
+    OLED_WriteReg(0x06, 0x01);
 }
 
 /*******************************************************************************
@@ -156,7 +152,7 @@ void OLED_Config(uint16_t *fconf)
  * @param  : Valeur de la commande.
  * @return : Rien.
  ******************************************************************************/
-void OLED_EnvoyerCmd(uint8_t Valeur)
+void OLED_SendCmd(uint8_t Valeur)
 {
     OLED_RS_LOW();
     OLED_CS_LOW();
@@ -170,7 +166,7 @@ void OLED_EnvoyerCmd(uint8_t Valeur)
  * @param  : Valeur de la donnee.
  * @return : Rien.
  ******************************************************************************/
-void OLED_EnvoyerData(uint16_t Valeur)
+void OLED_SendData(uint16_t Valeur)
 {
     OLED_SPI_EnvoyerOctet((Valeur>>8) & 0xFF);
     OLED_SPI_EnvoyerOctet(Valeur & 0xFF);
@@ -182,7 +178,7 @@ void OLED_EnvoyerData(uint16_t Valeur)
  *           ValeurReg: Valeur du registre.
  * @return : Rien.
  ******************************************************************************/
-void OLED_EcrireReg(uint8_t NomReg, uint8_t ValeurReg)
+void OLED_WriteReg(uint8_t NomReg, uint8_t ValeurReg)
 {
     OLED_CS_LOW();
     OLED_RS_LOW();
@@ -245,13 +241,13 @@ void OLED_SetRegion(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur)
     if (y2 < 0) y2=0;
     if (y2 >= 128) y2=127;
     
-    OLED_EcrireReg(0x17, x1);   // X start
-    OLED_EcrireReg(0x18, x2);   // X end
-    OLED_EcrireReg(0x19, y1);   // Y start
-    OLED_EcrireReg(0x1A, y2);   // Y end
+    OLED_WriteReg(0x17, x1);   // X start
+    OLED_WriteReg(0x18, x2);   // X end
+    OLED_WriteReg(0x19, y1);   // Y start
+    OLED_WriteReg(0x1A, y2);   // Y end
     
-    OLED_EcrireReg(0x20, x1);   // memory accesspointer x
-    OLED_EcrireReg(0x21, y1);   // memory accesspointer y
+    OLED_WriteReg(0x20, x1);   // memory accesspointer x
+    OLED_WriteReg(0x21, y1);   // memory accesspointer y
 }
 
 /*******************************************************************************
@@ -271,7 +267,7 @@ void OLED_Fill(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur, uint16_t 
     uint16_t i;
     for (i=0; i<largeur*hauteur; i++)
     {
-        OLED_EnvoyerData(couleur);
+        OLED_SendData(couleur);
     }
     OLED_DataEnd();
 }
@@ -293,7 +289,7 @@ void OLED_AfficherBuffer(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur,
     uint16_t i;
     for (i=0; i<largeur*hauteur; i++)
     {
-        OLED_EnvoyerData(buffer[i]);
+        OLED_SendData(buffer[i]);
     }
     OLED_DataEnd();
 }
