@@ -31,9 +31,9 @@
  * @param  : delay: delay time.
  * @return : None.
  ******************************************************************************/
-void delay_us(uint32_t delay)
+void delay_us(__IO uint32_t nCount)
 {
-    while(delay --)
+    while(nCount --)
     {
         asm("nop");
         asm("nop");
@@ -52,10 +52,10 @@ void delay_us(uint32_t delay)
  * @param  : delay: delay time.
  * @return : None.
  ******************************************************************************/
-void delay_ms(uint32_t delay)
+void delay_ms(__IO uint32_t nCount)
 {
     uint16_t i;
-    while(delay--)
+    while(nCount--)
     {
         for(i=0; i<1000;i++)
             delay_us(1);

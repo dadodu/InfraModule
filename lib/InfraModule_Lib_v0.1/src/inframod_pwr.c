@@ -185,7 +185,7 @@ void PWR_EXTI_Init (void)
  ******************************************************************************/
 uint8_t PWR_WriteReg (uint8_t reg, uint8_t val)
 {
-    uint32_t timeout = 0;
+    __IO uint32_t timeout = 0;
     uint8_t error = 0;
     
     /* While the bus is busy */
@@ -222,7 +222,7 @@ uint8_t PWR_WriteReg (uint8_t reg, uint8_t val)
  ******************************************************************************/
 uint8_t PWR_ReadReg (uint8_t reg, uint8_t *val)
 {
-    uint32_t timeout = 0;
+    __IO uint32_t timeout = 0;
     uint8_t error = 0;
     *val = 0;
     

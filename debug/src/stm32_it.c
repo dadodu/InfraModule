@@ -46,7 +46,7 @@ void EXTI0_IRQHandler(void)
         GPIO_HIGH(LED_GREEN_PORT, LED_GREEN_PIN);
         
         // Power down VCC_OLED
-        //OLED_VDDH_OFF();
+        OLED_VDDH_OFF();
         delay_ms(100);
         
         // As you press the ON/OFF button

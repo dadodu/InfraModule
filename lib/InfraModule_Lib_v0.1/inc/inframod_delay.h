@@ -31,8 +31,8 @@
 
 /* Exported functions ------------------------------------------------------- */
 
-void delay_us (uint32_t delay);
-void delay_ms (uint32_t delay);
+void delay_us (__IO uint32_t nCount);
+void delay_ms (__IO uint32_t nCount);
 
 #endif  /*__INFRAMOD_DELAY_H*/
 
