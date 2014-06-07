@@ -59,8 +59,8 @@
 void PWR_Init (void);
 void PWR_EXTI_Init (void);
 
-uint8_t PWR_WriteReg (uint8_t Reg, uint8_t Value);
-uint8_t PWR_ReadReg (uint8_t Reg, uint8_t *Value);
+uint8_t PWR_WriteReg (uint8_t reg, uint8_t val);
+uint8_t PWR_ReadReg (uint8_t reg, uint8_t *val);
 
 #endif  /*__INFRAMOD_PWR_H*/
 

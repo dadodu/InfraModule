@@ -1,7 +1,7 @@
 /*******************************************************************************
  * inframod_spi_oled.h
  * 
- * Copyright 2014 Roman GAUCHI <roman.gauchi@gmail.com>
+ * Copyright 2014 Roman GAUCHI
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@
 void OLED_Init (void);
 void OLED_VDDH_Init (void);
 
-uint8_t OLED_SPI_EnvoyerOctet (uint8_t octet);
+uint8_t OLED_SPI_SendByte (uint8_t byte);
 
 #endif  /*__INFRAMOD_SPI_OLED_H*/
 

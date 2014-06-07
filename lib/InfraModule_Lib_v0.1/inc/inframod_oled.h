@@ -37,16 +37,16 @@
 void OLED_Config (uint16_t *fconf);
 
 /* Low layer functions */
-void OLED_SendCmd (uint8_t Valeur);
-void OLED_SendData (uint16_t Valeur);
-void OLED_WriteReg (uint8_t NomReg, uint8_t ValeurReg);
+void OLED_SendCmd (uint8_t cmd);
+void OLED_SendData (uint16_t data);
+void OLED_WriteReg (uint8_t reg, uint8_t val);
 void OLED_DataStart (void);
 void OLED_DataEnd (void);
 
 /* High layer functions */
-void OLED_SetRegion (uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur);
-void OLED_Fill (uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur, uint16_t couleur);
-void OLED_AfficherBuffer (uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur, uint16_t *buffer);
+void OLED_SetRegion (uint8_t x, uint8_t y, uint8_t width, uint8_t height);
+void OLED_Fill (uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color);
+void OLED_PrintBuffer (uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t *buffer);
 void OLED_Clear (void);
 
 

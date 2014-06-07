@@ -148,66 +148,66 @@ void OLED_Config(uint16_t *fconf)
 }
 
 /*******************************************************************************
- * @brief  : Envoyer une commande de 8bits au SEPS525.
- * @param  : Valeur de la commande.
- * @return : Rien.
+ * @brief  : Send a 8bits command to SEPS525.
+ * @param  : cmd: command value.
+ * @return : None.
  ******************************************************************************/
-void OLED_SendCmd(uint8_t Valeur)
+void OLED_SendCmd(uint8_t cmd)
 {
     OLED_RS_LOW();
     OLED_CS_LOW();
-    OLED_SPI_EnvoyerOctet(Valeur);
+    OLED_SPI_SendByte(cmd);
     OLED_CS_HIGH();
     OLED_RS_HIGH();
 }
 
 /*******************************************************************************
- * @brief  : Envoyer une donnee ou un parametre de 16bits au SEPS525.
- * @param  : Valeur de la donnee.
- * @return : Rien.
+ * @brief  : Send a 16 bits data or value to SEPS525.
+ * @param  : data: data value.
+ * @return : None.
  ******************************************************************************/
-void OLED_SendData(uint16_t Valeur)
+void OLED_SendData(uint16_t data)
 {
-    OLED_SPI_EnvoyerOctet((Valeur>>8) & 0xFF);
-    OLED_SPI_EnvoyerOctet(Valeur & 0xFF);
+    OLED_SPI_SendByte((data>>8) & 0xFF);
+    OLED_SPI_SendByte(data & 0xFF);
 }
 
 /*******************************************************************************
- * @brief  : Ecrire une valeur dans un registre du SEPS525.
- * @param  : NomReg: nom du registre.
- *           ValeurReg: Valeur du registre.
- * @return : Rien.
+ * @brief  : Write a value in a register of SEPS525.
+ * @param  : reg: register's name.
+ *           val: register's value.
+ * @return : None.
  ******************************************************************************/
-void OLED_WriteReg(uint8_t NomReg, uint8_t ValeurReg)
+void OLED_WriteReg(uint8_t reg, uint8_t val)
 {
     OLED_CS_LOW();
     OLED_RS_LOW();
-    OLED_SPI_EnvoyerOctet(NomReg);
+    OLED_SPI_SendByte(reg);
     OLED_RS_HIGH();
     OLED_CS_HIGH();
     
     OLED_CS_LOW();
-    OLED_SPI_EnvoyerOctet(ValeurReg);
+    OLED_SPI_SendByte(val);
     OLED_CS_HIGH();
 }
 
 /*******************************************************************************
- * @brief  : Demarrer un envoi de donnee dans la memoire du SEPS525.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Start a data transfer in the SEPS525's memory.
+ * @param  : None.
+ * @return : None.
  ******************************************************************************/
 void OLED_DataStart(void)
 {
     OLED_CS_LOW();
     OLED_RS_LOW();
-    OLED_SPI_EnvoyerOctet(0x22);
+    OLED_SPI_SendByte(0x22);
     OLED_RS_HIGH();
 }
 
 /*******************************************************************************
- * @brief  : Arreter l'envoi de donnee au SEPS525.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Stop a data transfer.
+ * @param  : None.
+ * @return : None.
  ******************************************************************************/
 void OLED_DataEnd(void)
 {
@@ -215,21 +215,21 @@ void OLED_DataEnd(void)
 }
 
 /*******************************************************************************
- * @brief  : Definir une region ou ecrire les donnees en memoire du SEPS525.
- * @param  : x: position en x (Coin en haut a gauche).
- *           y: position en y (Coin en haut a gauche).
- *           largeur: largeur de la region.
- *           hauteur: hauteur de la region.
- * @return : Rien.
+ * @brief  : Define a region in SEPS525's memory, to write data.
+ * @param  : x: top left corner.
+ *           y: top left corner.
+ *           width: region's width.
+ *           height: region's height.
+ * @return : None.
  ******************************************************************************/
-void OLED_SetRegion(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur)
+void OLED_SetRegion(uint8_t x, uint8_t y, uint8_t width, uint8_t height)
 {
     uint8_t x1, x2, y1, y2;
     
     x1 = x;
     y1 = y;
-    x2 = x + largeur - 1;
-    y2 = y + hauteur - 1;
+    x2 = x + width - 1;
+    y2 = y + height - 1;
     
     // Valeurs limites
     if (x1 < 0) x1=0;
@@ -251,43 +251,43 @@ void OLED_SetRegion(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur)
 }
 
 /*******************************************************************************
- * @brief  : Dessinne un rectangle sur l'ecran OLED.
- * @param  : x: position en x (Coin en haut a gauche).
- *           y: position en y (Coin en haut a gauche).
- *           largeur: largeur du rectangle.
- *           hauteur: hauteur du rectangle.
- *           couleur: couleur du rectangle.
- * @return : Rien.
+ * @brief  : Draw a color rectangle on the screen.
+ * @param  : x: top left corner.
+ *           y: top left corner.
+ *           width: rectangle's width.
+ *           height: rectangle's height.
+ *           color: rectangle's color.
+ * @return : None.
  ******************************************************************************/
-void OLED_Fill(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur, uint16_t couleur)
+void OLED_Fill(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color)
 {
-    OLED_SetRegion(x, y, largeur, hauteur);
+    OLED_SetRegion(x, y, width, height);
     
     OLED_DataStart();
     uint16_t i;
-    for (i=0; i<largeur*hauteur; i++)
+    for (i=0; i<width*height; i++)
     {
-        OLED_SendData(couleur);
+        OLED_SendData(color);
     }
     OLED_DataEnd();
 }
 
 /*******************************************************************************
- * @brief  : Dessinne le contenu du buffer sur l'ecran OLED.
- * @param  : x: position en x (Coin en haut a gauche).
- *           y: position en y (Coin en haut a gauche).
- *           largeur: largeur du rectangle.
- *           hauteur: hauteur du rectangle.
- *           buffer: valeur du buffer.
- * @return : Rien.
+ * @brief  : Print the buffer's values on the screen.
+ * @param  : x: top left corner.
+ *           y: top left corner.
+ *           width: buffer's width.
+ *           height: buffer's height.
+ *           buffer: buffer's values.
+ * @return : None.
  ******************************************************************************/
-void OLED_AfficherBuffer(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur, uint16_t *buffer)
+void OLED_PrintBuffer(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t *buffer)
 {
-    OLED_SetRegion(x, y, largeur, hauteur);
+    OLED_SetRegion(x, y, width, height);
     
     OLED_DataStart();
     uint16_t i;
-    for (i=0; i<largeur*hauteur; i++)
+    for (i=0; i<width*height; i++)
     {
         OLED_SendData(buffer[i]);
     }
@@ -295,9 +295,9 @@ void OLED_AfficherBuffer(uint8_t x, uint8_t y, uint8_t largeur, uint8_t hauteur,
 }
 
 /*******************************************************************************
- * @brief  : Efface tout l'ecran OLED.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Clear the OLED screen.
+ * @param  : None.
+ * @return : None.
  ******************************************************************************/
 void OLED_Clear(void)
 {

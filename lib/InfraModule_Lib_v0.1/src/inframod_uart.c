@@ -27,10 +27,9 @@
 
 
 /*******************************************************************************
-* Function Name  : UART_Init
-* Description    : Initialize UART.
-* Input          : baudRate: speed of the UART line.
-* Return         : None.
+* @brief  : Initiates UART peripheral.
+* @param  : baudRate: speed of the UART line.
+* @retval : None.
 *******************************************************************************/
 void UART_Init(uint32_t baudRate)
 {
@@ -83,30 +82,30 @@ void UART_Init(uint32_t baudRate)
 }
 
 /*******************************************************************************
- * @brief  : Envoyer une donnees de 8bits en UART.
- * @param  : Aucun.
- * @retval : Rien.
+ * @brief  : Send a 8bits data with UART protocol.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 void UART_SendData(uint8_t data)
 {
-    // Envoi de la donnee
+    /* Send the data */
     USART_SendData(UART, data);
     
-    // Attend que l'UART emette la donnee
+    /* Wait until the UART send data */
     while(USART_GetFlagStatus(UART, USART_FLAG_TXE) == RESET);
 }
 
 /*******************************************************************************
- * @brief  : Recevoir une donnees de 8bits en UART.
- * @param  : Aucun.
- * @retval : Rien.
+ * @brief  : Receive a 8 bits data with UART protocol.
+ * @param  : None.
+ * @retval : None.
  ******************************************************************************/
 uint8_t UART_ReceiveData(void)
 {
-    // Attent que l'UART soit pret a recevoir
+    /* Wait until UART is ready to receive */
     while(USART_GetFlagStatus(UART, USART_FLAG_RXNE) == RESET);
     
-    // lit la donnee sur 16bits
+    /* Read the 16 bits data */
     return (uint8_t)(USART_ReceiveData(UART));
 }
 

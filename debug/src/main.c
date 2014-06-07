@@ -34,7 +34,8 @@ static void PWR_Receive(uint8_t reg, uint8_t *val);
 /* Private define ------------------------------------------------------------*/
 static const char HelpMsg[] =
     "[Flash]\n"
-    "  f - Read the identifier of the Flash\n"
+    "  fs - Read the status of the Flash\n"
+    "  fe - Erase the entire Flash memory\n"
     "[Power Management]\n"
     "  pv - Show the battery voltage\n"
     "  pc - Show the battery current\n"
@@ -75,8 +76,8 @@ int main(void)
     FLASH_Init();
     
     // Enable the OLED High voltage
-    //OLED_VDDH_Init();
-    //OLED_VDDH_ON();
+    OLED_VDDH_Init();
+    OLED_VDDH_ON();
     
     // Configure the RTC Clock
     CLOCK_Init();
@@ -100,15 +101,30 @@ int main(void)
         ptr = line;
         switch (*ptr++)
         {
-            case '?' :
+            /* HELP ----------------------------------------------------------*/
+            case '?':
                 xputs(HelpMsg);
                 break;
             
-            case 'f' :
-                id = FLASH_ReadID();
-                xprintf("ID = 0x%02x\n", id);
+            /* FLASH ---------------------------------------------------------*/
+            case 'f':
+                switch (*ptr++)
+                {
+                    case 's':
+                        id = FLASH_ReadID();
+                        xprintf("Identification  = 0x%02x\n", id);
+                        temp = FLASH_ReadStatusRegister();
+                        xprintf("Status register = 0x%02x\n", temp);
+                        break;
+                    case 'e':
+                        xprintf("[+] Flash Erasement ...\n");
+                        FLASH_EraseBulk();
+                        xprintf("[*] Finish\n");
+                        break;
+                }
                 break;
             
+            /* POWER MANAGEMENT ----------------------------------------------*/
             case 'p':
                 switch (*ptr++)
                 {
@@ -146,12 +162,17 @@ int main(void)
                 }
                 break;
             
+            /* REAL TIME CLOCK -----------------------------------------------*/
             case 't':
                 RTC_GetTime(RTC_Format_BIN, &time);
                 hour   = (uint8_t)(time.RTC_Hours);
                 minute = (uint8_t)(time.RTC_Minutes);
                 second = (uint8_t)(time.RTC_Seconds);
                 xprintf("Time : %dh%dm%ds\n", hour, minute, second); 
+                break;
+            
+            /* OLED SCREEN ---------------------------------------------------*/
+            case 'o':
                 break;
         }
     }

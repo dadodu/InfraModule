@@ -123,17 +123,17 @@ void PWR_I2C_LowLevel_Init (void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
     
-    // Active l'horloge des I/O
+    /* Enable I/O clock */
     RCC_AHBPeriphClockCmd(PWR_I2C_SCL_GPIO_CLK | PWR_I2C_SDA_GPIO_CLK, ENABLE);
     
-    // Active l'horloge de l'I2C
+    /* Enable I2C clock */
     RCC_APB1PeriphClockCmd(PWR_I2C_CLK, ENABLE);
     
-    // Configure le peripherique I2C : SCL & SDA
+    /* Configure alternatives functions */
     GPIO_PinAFConfig(PWR_I2C_SCL_GPIO_PORT, PWR_I2C_SCL_SOURCE, PWR_I2C_SCL_AF);
     GPIO_PinAFConfig(PWR_I2C_SDA_GPIO_PORT, PWR_I2C_SDA_SOURCE, PWR_I2C_SDA_AF);
     
-    // Pin I2C_SCL :
+    /* I2C_SCL pin */
     GPIO_InitStruct.GPIO_Pin   = PWR_I2C_SCL_PIN;
     GPIO_InitStruct.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
@@ -141,35 +141,35 @@ void PWR_I2C_LowLevel_Init (void)
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_40MHz;
     GPIO_Init(PWR_I2C_SCL_GPIO_PORT, &GPIO_InitStruct);
     
-    // Pin I2C_SDA :
+    /* I2C_SDA pin */
     GPIO_InitStruct.GPIO_Pin   = PWR_I2C_SDA_PIN;
     GPIO_Init(PWR_I2C_SDA_GPIO_PORT, &GPIO_InitStruct);
 }
 
 /*******************************************************************************
- * @brief  : Active l'interruption sur ONSTAT.
- * @param  : Aucun.
- * @return : Rien.
+ * @brief  : Enable the ONSTAT interrupt.
+ * @param  : None.
+ * @return : None.
  ******************************************************************************/
 void PWR_EXTI_Init (void)
 {
     EXTI_InitTypeDef EXTI_InitStruct;
     NVIC_InitTypeDef NVIC_InitStruct;
     
-    // Demarrage de l'horloge SYSCFG :
+    /* Enable the SYSCFG clock */
     RCC_APB2PeriphClockCmd(RCC_APB2ENR_SYSCFGEN, ENABLE);
     
-    // Cablage de EXTI_Line0 sur la pin ONSTAT:
+    /* Set the EXTI line on the ONSTAT pin */
     SYSCFG_EXTILineConfig(PWR_ONSTAT_EXTI_PORT, PWR_ONSTAT_SOURCE);
     
-    // Configuration de EXTI
+    /* EXTI configuration */
     EXTI_InitStruct.EXTI_Line    = PWR_ONSTAT_EXTI_LINE;
     EXTI_InitStruct.EXTI_Mode    = EXTI_Mode_Interrupt;
     EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
     EXTI_InitStruct.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStruct);
     
-    // Configuration de NVIC
+    /* NVIC configuration */
     NVIC_InitStruct.NVIC_IRQChannel                   = PWR_ONSTAT_NVIC_IRQ;
     NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStruct.NVIC_IRQChannelSubPriority        = 0;
@@ -178,36 +178,36 @@ void PWR_EXTI_Init (void)
 }
 
 /*******************************************************************************
- * @brief  : Ecrit une valeur dans un registre avec le protocole I2C.
- * @param  : NomReg: numero du registre.
- *           ValeurReg: valeur a donner.
- * @return : 0 en cas de reussite, different en cas d'echec.
+ * @brief  : Write a value in the LP3913's register with I2C protocol.
+ * @param  : reg: register's name.
+ *           val: register's value.
+ * @return : '0' if success else other value.
  ******************************************************************************/
-uint8_t PWR_WriteReg (uint8_t Reg, uint8_t Value)
+uint8_t PWR_WriteReg (uint8_t reg, uint8_t val)
 {
     uint32_t timeout = 0;
     uint8_t error = 0;
     
-    // Test sur BUSY Flag
+    /* While the bus is busy */
     Timed(I2C_GetFlagStatus(PWR_I2C, I2C_FLAG_BUSY));
     
-    // Envoi du START
+    /* Send START condition */
     I2C_GenerateSTART(PWR_I2C, ENABLE);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_MODE_SELECT));
     
-    // Transmet l'adresse de l'esclave et active le mode ECRITURE
+    /* Send LP3913 address for write */
     I2C_Send7bitAddress(PWR_I2C, (PWR_ADDR_ID<<1), I2C_Direction_Transmitter);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
     
-    // Envoi de l'adresse du registre
-    I2C_SendData(PWR_I2C, Reg);
+    /* Send the address to write to */
+    I2C_SendData(PWR_I2C, reg);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
     
-    // Envoi de la donnee
-    I2C_SendData(PWR_I2C, Value);
+    /* Send the value to write */
+    I2C_SendData(PWR_I2C, val);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
     
-    // Envoi du STOP
+    /* Send STOP condition */
     I2C_GenerateSTOP(PWR_I2C, ENABLE);
     Timed(I2C_GetFlagStatus(PWR_I2C, I2C_FLAG_STOPF));
     
@@ -215,52 +215,52 @@ uint8_t PWR_WriteReg (uint8_t Reg, uint8_t Value)
 }
 
 /*******************************************************************************
- * @brief  : Lit une valeur dans un registre avec le protocole I2C.
- * @param  : NomReg: numero du registre.
- *           ValeurReg: valeur retournee.
- * @return : 0 en cas de reussite, different en cas d'echec.
+ * @brief  : Read the register's value with the I2C protocol.
+ * @param  : reg: register's name.
+ *           val: return value.
+ * @return : '0' if success else other value.
  ******************************************************************************/
-uint8_t PWR_ReadReg (uint8_t Reg, uint8_t *Value)
+uint8_t PWR_ReadReg (uint8_t reg, uint8_t *val)
 {
     uint32_t timeout = 0;
     uint8_t error = 0;
-    *Value = 0;
+    *val = 0;
     
-    // Test sur BUSY Flag
+    /* While the bus is busy */
     Timed(I2C_GetFlagStatus(PWR_I2C, I2C_FLAG_BUSY));
     
-    // Envoi du START
+    /* Send START condition */
     I2C_GenerateSTART(PWR_I2C, ENABLE);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_MODE_SELECT));
     
-    // Transmet l'adresse de l'esclave et active le mode ECRITURE
+    /* Send LP3913 address for write */
     I2C_Send7bitAddress(PWR_I2C, (PWR_ADDR_ID<<1), I2C_Direction_Transmitter);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
     
-    // Transmet le registre ou ecrire
-    I2C_SendData(PWR_I2C, Reg);
+    /* Send the address to write to */
+    I2C_SendData(PWR_I2C, reg);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
     
-    // Envoi d'un deuxieme START
+    /* Send START condition a second time */
     I2C_GenerateSTART(PWR_I2C, ENABLE);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_MODE_SELECT));
     
-    // Transmet l'adresse de l'esclave et active le mode LECTURE
+    /* Send LP3913 address for read */
     I2C_Send7bitAddress(PWR_I2C, (PWR_ADDR_ID<<1), I2C_Direction_Receiver);
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
     
-    // Desactive l'attente du ACK-Esclave
+    /* Disable Acknowledgement */
     I2C_AcknowledgeConfig(PWR_I2C, DISABLE);
     
-    // Reception de la donnee
+    /* Read the byte received from the LP3913 */
     Timed(!I2C_CheckEvent(PWR_I2C, I2C_EVENT_MASTER_BYTE_RECEIVED));
-    *Value = I2C_ReceiveData(PWR_I2C);
+    *val = I2C_ReceiveData(PWR_I2C);
     
-    // Envoi du STOP
+    /* Send STOP condition */
     I2C_GenerateSTOP(PWR_I2C, ENABLE);
     Timed(I2C_GetFlagStatus(PWR_I2C, I2C_FLAG_STOPF));
     
-    // Reactive l'attente du ACK-Esclave
+    /* Re-Enable Acknowledgement to be ready for another reception */
     I2C_AcknowledgeConfig(PWR_I2C, ENABLE);
     
     return 0;

@@ -29,10 +29,12 @@
 #include "stm32l1xx.h"
 #include "stm32l1xx_conf.h"
 
-/* Libraries InfraModule_v0.1 */
+/* InfraModule libraries */
 #include "inframod_board.h"
 #include "inframod_pwr.h"
 #include "inframod_spi_flash.h"
+#include "inframod_oled.h"
+#include "inframod_spi_oled.h"
 #include "inframod_clock.h"
 #include "inframod_delay.h"
 #include "inframod_uart.h"
